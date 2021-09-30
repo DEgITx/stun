@@ -2,9 +2,14 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <time.h>
+#ifdef _WIN32
+#define bzero(b,len) (memset((b), '\0', (len)), (void) 0)
+#include <winsock2.h>
+#else
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#endif
 /*
  *
  *  STUN(RFC5389)
@@ -24,13 +29,22 @@ int stun_get_addr(char *stun_server_ip, short stun_server_port, short local_port
 	short port;
 	short n;
 
+#ifdef _WIN32
+	WSADATA wsaData;
+    WSAStartup(MAKEWORD(2, 2), &wsaData);
+#endif
+
 	//# create socket 
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);	// UDP
 
 	// server 
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family = AF_INET;
+#ifdef _WIN32
+	servaddr.sin_addr.s_addr = inet_addr(stun_server_ip);
+#else
 	inet_pton(AF_INET, stun_server_ip, &servaddr.sin_addr);
+#endif
 	servaddr.sin_port = htons(stun_server_port);
 
 	// local

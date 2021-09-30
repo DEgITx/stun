@@ -1,6 +1,13 @@
+Linux:
 ```bash
 gcc stun.c stun_get_addr.c
 ```
+
+Windows (mingw):
+```bash
+gcc stun.c stun_get_addr.c -l ws2_32
+```
+
 
 then
 ```
